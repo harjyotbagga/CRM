@@ -7,7 +7,7 @@
 <div class="row">
 	<div class="col-md">
 		<div class="card card-body">
-			<h5>Customer:</h5>
+			<h5>Customer: {{customer.name}}</h5>
 			<hr>
 			<a class="btn btn-sm btn-block bg-dark" style="color: white;" href="">Update Customer</a>
 			<a class="btn btn-sm btn-block bg-dark" style="color: white;" href="">Delete Customer</a>
@@ -19,8 +19,8 @@
 		<div class="card card-body">
 			<h5>Contact Information</h5>
 			<hr>
-			<p>Email: </p>
-			<p>Phone: </p>
+			<p>Email: {{customer.email}}</p>
+			<p>Phone: {{customer.phone}}</p>
 		</div>
 	</div>
 
@@ -28,7 +28,7 @@
 		<div class="card card-body">
 			<h5>Total Orders</h5>
 			<hr>
-			<h1 style="text-align: center;padding: 10px"></h1>
+			<h1 style="text-align: center;padding: 10px">{{ customer_order_set_count }}</h1>
 		</div>
 	</div>
 </div>
@@ -55,12 +55,32 @@
 				<tr>
 					<th>Product</th>
 					<th>Category</th>
-					<th>Date Orderd</th>
+					<th>Date Ordered</th>
 					<th>Status</th>
 					<th>Update</th>
 					<th>Remove</th>
 				</tr>
-
+				{% if customer_order_set_count > 0 %}
+				{% for customer_order in customer_order_set %}
+				<tr>
+					<td>{{customer_order.product}}</td>
+					<td>{{customer_order.product.category}}</td>
+					<td>{{customer_order.date_created}}</td>
+					<td>{{customer_order.status}}</td>
+					<td><a href="">Update</a></td>
+					<td><a href="">Delete</a></td>
+				</tr>
+				{% endfor %}
+				{% else %}
+				<tr>
+					<td>NULL</td>
+					<td>NULL</td>
+					<td>NULL</td>
+					<td>NULL</td>
+					<td>NULL</td>
+					<td>NULL</td>
+				</tr>
+				{% endif %}
 			</table>
 		</div>
 	</div>

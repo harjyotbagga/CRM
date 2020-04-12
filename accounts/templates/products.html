@@ -16,6 +16,21 @@
                     <th>Category</th>
                     <th>Price</th>
                 </tr>
+                {% if product_count > 0 %}
+                {% for product in products %}
+                <tr>
+                    <td>{{product.name}}</td>
+                    <td>{{product.category}}</td>
+                    <td>Rs. {{product.price}}</td>
+                </tr>
+                {% endfor %}
+                {% else %}
+                <tr>
+                    <td>NULL</td>
+                    <td>NULL</td>
+                    <td>NULL</td>
+                </tr>
+                {% endif %}
             </table>
         </div>
     </div>

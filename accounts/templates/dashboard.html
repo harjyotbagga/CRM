@@ -11,13 +11,24 @@
             <table class="table table-sm">
                 <tr>
                     <th></th>
-                    <th>
-                        Customer
-                    </th>
-                    <th>
-                        Phone
-                    </th>
+                    <th>Customer</th>
+                    <th>Phone</th>
                 </tr>
+                {% if customer_count > 0 %}
+                {% for customer in customers %}
+                <tr>
+                    <td><a href="{% url 'customer' customer.id %}">View</a></td>
+                    <td>{{customer.name}}</td>
+                    <td>{{customer.phone}}</td>
+                </tr>
+                {% endfor %}
+                {% else %}
+                <tr>
+                    <td>NULL</td>
+                    <td>NULL</td>
+                    <td>NULL</td>
+                </tr>
+                {% endif %}
             </table>
         </div>
     </div>
@@ -35,6 +46,25 @@
                     <th>Update</th>
                     <th>Remove</th>
                 </tr>
+                {% if order_count > 0 %}
+                {% for order in orders %}
+                <tr>
+                    <td>{{order.product}}</td>
+                    <td>{{order.date_created}}</td>
+                    <td>{{order.status}}</td>
+                    <td><a href="">Update</a></td>
+                    <td><a href="">Delete</a></td>
+                </tr>
+                {% endfor %}
+                {% else %}
+                <tr>
+                    <td>NULL</td>
+                    <td>NULL</td>
+                    <td>NULL</td>
+                    <td>NULL</td>
+                    <td>NULL</td>
+                </tr>
+                {% endif %}
             </table>
         </div>
     </div>
