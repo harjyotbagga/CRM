@@ -1,0 +1,11 @@
+{% extends 'main.html' %}
+{% load static %}
+
+{% block content %}
+<p>Are you sure you want to delete the order of {{order_product}} placed on {{order_date_created}}?</p>
+<form method="POST" action=".">
+    {% csrf_token %}
+    <input type="submit" name="Submit" value="Delete">
+    <input type="submit" name="Submit" value="Cancel">
+</form>
+{% endblock %}

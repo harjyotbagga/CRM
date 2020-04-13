@@ -1,0 +1,11 @@
+{% extends 'main.html' %}
+{% load static %}
+
+{% block content %}
+<p>Are you sure you want to delete {{customer_name}} from the database?</p>
+<form method="POST" action=".">
+    {% csrf_token %}
+    <input type="submit" name="Submit" value="Delete">
+    <input type="submit" name="Submit" value="Cancel">
+</form>
+{% endblock %}

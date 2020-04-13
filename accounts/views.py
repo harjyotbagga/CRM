@@ -1,6 +1,8 @@
-from django.shortcuts import render
+from django.shortcuts import render, redirect
 from django.http import HttpResponse
+from django.forms import inlineformset_factory
 from .models import Customer, Order, Product, Tag
+from .forms import OrderForm, CustomerForm
 # Create your views here.
 
 def home(request):
@@ -39,3 +41,77 @@ def customer(request, pk):
         'customer_order_set_count': customer_order_set_count
     }
     return render(request, 'customer.html', context=context)
+
+def create_order(request):
+    if request.method == 'GET':
+        form = OrderForm()
+        context={'form': form}
+        return render(request, 'order_form.html', context=context)
+    elif request.method == 'POST':
+        form = OrderForm(request.POST)
+        if form.is_valid():
+            form.save()
+            return redirect('/')
+
+def create_customer_order(request, pk):
+    OrderFormSet = inlineformset_factory(Customer, Order, fields=('product', 'status'))
+    customer = Customer.objects.get(id=pk)
+    if request.method == 'GET':
+        formset = OrderFormSet(instance=customer)
+        context={'customer': customer, 'formset': formset}
+        return render(request, 'customer_order_form.html', context=context)
+    elif request.method == 'POST':
+        # FIXME: Yet to sort out the management error
+        formset = OrderFormSet(request.POST, instance=customer)
+        if formset.is_valid():
+            formset.save()
+            return redirect('/')
+
+def update_order(request, pk):
+    order = Order.objects.get(id=pk)
+    if request.method == 'GET':
+        form = OrderForm(instance=order)
+        context = {'form': form}
+        return render(request, 'order_form.html', context=context)
+    elif request.method == 'POST':
+        form = OrderForm(request.POST, instance=order)
+        if form.is_valid():
+            form.save()
+        return redirect('/')
+
+def delete_order(request, pk):
+    order = Order.objects.get(id=pk)
+    if request.method == 'GET':
+        context = {
+            'order_product': order.product,
+            'order_date_created': order.date_created
+        }
+        return render(request, 'delete_order.html', context=context)
+    if request.method == 'POST':
+        if request.POST['Submit'] == 'Delete':
+            order.delete()
+        return redirect('/')
+
+def update_customer(request, pk):
+    customer = Customer.objects.get(id=pk)
+    if request.method == 'GET':
+        form = CustomerForm(instance=customer)
+        context = {'form': form}
+        return render(request, 'customer_form.html', context=context)
+    elif request.method == 'POST':
+        form = CustomerForm(request.POST, instance=customer)
+        if form.is_valid():
+            form.save()
+        return redirect('/')
+
+def delete_customer(request, pk):
+    customer = Customer.objects.get(id=pk)
+    if request.method == 'GET':
+        context = {
+            'customer_name': customer.name
+        }
+        return render(request, 'delete_customer.html', context=context)
+    if request.method == 'POST':
+        if request.POST['Submit'] == 'Delete':
+            customer.delete()
+        return redirect('/')
