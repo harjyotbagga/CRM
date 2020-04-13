@@ -3,6 +3,7 @@ from django.http import HttpResponse
 from django.forms import inlineformset_factory
 from .models import Customer, Order, Product, Tag
 from .forms import OrderForm, CustomerForm
+from .filters import OrderFilter
 # Create your views here.
 
 def home(request):
@@ -35,10 +36,13 @@ def customer(request, pk):
     customer = Customer.objects.get(id=pk)
     customer_order_set = customer.customer_orders.all()
     customer_order_set_count = customer.customer_orders.count()
+    CustomerOrderFilter = OrderFilter(request.GET, queryset=customer_order_set)
+    customer_order_set = CustomerOrderFilter.qs
     context = {
         'customer': customer,
         'customer_order_set': customer_order_set,
-        'customer_order_set_count': customer_order_set_count
+        'customer_order_set_count': customer_order_set_count,
+        'CustomerOrderFilter': CustomerOrderFilter
     }
     return render(request, 'customer.html', context=context)
 
@@ -58,7 +62,9 @@ def create_customer_order(request, pk):
     customer = Customer.objects.get(id=pk)
     if request.method == 'GET':
         formset = OrderFormSet(instance=customer)
-        context={'customer': customer, 'formset': formset}
+        context={
+            'customer': customer, 
+            'formset': formset}
         return render(request, 'customer_order_form.html', context=context)
     elif request.method == 'POST':
         # FIXME: Yet to sort out the management error
