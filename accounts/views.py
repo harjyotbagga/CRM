@@ -1,10 +1,34 @@
 from django.shortcuts import render, redirect
 from django.http import HttpResponse
 from django.forms import inlineformset_factory
-from .models import Customer, Order, Product, Tag
-from .forms import OrderForm, CustomerForm
-from .filters import OrderFilter
+from .models import *
+from .forms import *
+from .filters import *
 # Create your views here.
+
+def login(request):
+    return render(request, 'login.html')
+
+def register(request):
+    if request.method == 'GET':
+        form = UserCreationForm()
+        context = {'form': form}
+        print()
+        for field in form:
+            print(field)
+            print()
+        return render(request, 'register.html', context=context)
+    elif request.method == 'POST':
+        form = UserCreationForm(request.POST)
+        if form.is_valid():
+            form.save()
+            redirect('login/')
+        else:
+            E = []
+            for error in form.errors:
+                E.append(error)
+            return HttpResponse(E)
+            #return render(request, 'register.html')
 
 def home(request):
     customer_count = Customer.objects.count()
