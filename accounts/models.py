@@ -1,6 +1,15 @@
 from django.db import models
+from django.contrib.auth.models import User
 
 # Create your models here.
+# class User(User):
+#     first_name = models.CharField(max_length=30, required=True)
+#     last_name = models.CharField(max_length=30, required=True)
+#     email = models.EmailField(max_length=254,null=False)
+#     class Meta:
+#         proxy = True
+#         ordering = ('username', 'first_name', 'last_name', 'email')
+
 class Customer(models.Model):
     name = models.CharField(max_length=50, null=False)
     phone = models.BigIntegerField(null=False)

@@ -1,6 +1,6 @@
 from django import forms
 from django.forms import ModelForm
-from .models import Tag, Customer, Order, Product
+from .models import *
 from django.contrib.auth.models import User
 from django.contrib.auth.forms import UserCreationForm
 
@@ -15,9 +15,12 @@ class CustomerForm(ModelForm):
         fields = '__all__'
 
 class CreateUserForm(UserCreationForm):
-    first_name = forms.CharField(max_length=30, required=True, help_text='Enter your name.', widget=forms.TextInput(attrs={'placeholder':'first_name'}))
-    last_name = forms.CharField(max_length=30, required=False, widget=forms.TextInput(attrs={'placeholder':'last_name'}))
-    email = forms.EmailField(required=True, widget=forms.EmailInput(attrs={'placeholder': 'Email'}), max_length=254, help_text='Enter a valid email address')
+    username = forms.CharField(widget=forms.TextInput(attrs={'placeholder': 'Username'}))
+    first_name = forms.CharField(help_text='Enter your name.', widget=forms.TextInput(attrs={'placeholder':'First Name'}))
+    last_name = forms.CharField(widget=forms.TextInput(attrs={'placeholder':'Last Name'}))
+    email = forms.EmailField(help_text='Enter a valid email address', widget=forms.EmailInput(attrs={'placeholder': 'Email Address'}))
+    password1 = forms.CharField(widget=forms.PasswordInput(attrs={'placeholder': 'Password'}))
+    password2 = forms.CharField(widget=forms.PasswordInput(attrs={'placeholder': 'Confirm Password'}))
 
     class Meta(UserCreationForm.Meta):
         model = User
