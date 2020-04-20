@@ -5,55 +5,60 @@ from django.forms import inlineformset_factory
 from django.contrib import messages
 from django.contrib.auth import authenticate, login, logout
 from django.contrib.auth.decorators import login_required
+from django.contrib.auth.models import User, Group
 from .models import *
 from .forms import *
 from .filters import *
+from .decorators import *
 # Create your views here.
 
+@unauthenticated_users
 def loginPage(request):
-    if request.user.is_authenticated:
-        return redirect('home')
-    else:    
-        if request.method == 'GET':
+    if request.method == 'GET':
+        return render(request, 'login.html')
+    elif request.method == 'POST':
+        username = request.POST.get('username')
+        password = request.POST.get('password')
+        user = authenticate(request, username=username, password=password)
+        if user is not None:
+            login(request, user)
+            return redirect('home')
+        else:
+            messages.info(request, 'Username/Password is incorrect.')
             return render(request, 'login.html')
-        elif request.method == 'POST':
-            username = request.POST.get('username')
-            password = request.POST.get('password')
-            user = authenticate(request, username=username, password=password)
-            if user is not None:
-                login(request, user)
-                return redirect('home')
-            else:
-                messages.info(request, 'Username/Password is incorrect.')
-                return render(request, 'login.html')
 
 def logoutUser(request):
     logout(request)
     return redirect('login')
 
+@unauthenticated_users
 def register(request):
-    if request.user.is_authenticated:
-        return redirect('home')
-    else:
-        if request.method == 'GET':
-            form = CreateUserForm()
-            context = {'form': form}
-            print()
-            for field in form:
-                print(field)
-                print()
-            return render(request, 'register.html', context=context)
-        elif request.method == 'POST':
-            form = CreateUserForm(request.POST)
-            if form.is_valid():
-                form.save()
-                user = form.cleaned_data.get('username')
-                messages.success(request, 'User account was created for '+ user)
-                return redirect('login')
-            else:
-                return render(request, 'register.html', context={'form': form})
+    if request.method == 'GET':
+        form = CreateUserForm()
+        context = {'form': form}
+        return render(request, 'register.html', context=context)
+    elif request.method == 'POST':
+        form = CreateUserForm(request.POST)
+        if form.is_valid():
+            user = form.save()
+            username = form.cleaned_data.get('username')
+
+            group = Group.objects.get(name='customer')
+            user.groups.add(group)
+            
+            messages.success(request, 'User account was created for '+ user)
+            return redirect('login')
+        else:
+            return render(request, 'register.html', context={'form': form})
+
+def userPage(request):
+    context={}
+    return render(request, 'user.html', context=context)
+
 
 @login_required(login_url='login')
+@authorized_users(allowed_roles = ['admin', 'customer'])
+@admin_only
 def home(request):
     customer_count = Customer.objects.count()
     customers = Customer.objects.all()
@@ -72,6 +77,7 @@ def home(request):
     return render(request, 'dashboard.html', context=context)
 
 @login_required(login_url='login')
+@authorized_users(allowed_roles = ['admin'])
 def products(request):
     product_count = Product.objects.count()
     products = Product.objects.all()
@@ -82,6 +88,7 @@ def products(request):
     return render(request, 'products.html', context=context)
 
 @login_required(login_url='login')
+@authorized_users(allowed_roles = ['admin'])
 def customer(request, pk):
     customer = Customer.objects.get(id=pk)
     customer_order_set = customer.customer_orders.all()
@@ -97,6 +104,7 @@ def customer(request, pk):
     return render(request, 'customer.html', context=context)
 
 @login_required(login_url='login')
+@authorized_users(allowed_roles = ['admin'])
 def create_order(request):
     if request.method == 'GET':
         form = OrderForm()
@@ -109,6 +117,8 @@ def create_order(request):
             return redirect('home')
 
 @login_required(login_url='login')
+@authorized_users(allowed_roles = ['admin', 'customer'])
+# TODO: Add a func, to allow that customer only to create an order
 def create_customer_order(request, pk):
     OrderFormSet = inlineformset_factory(Customer, Order, fields=('product', 'status'))
     customer = Customer.objects.get(id=pk)
@@ -126,6 +136,8 @@ def create_customer_order(request, pk):
             return redirect('home')
 
 @login_required(login_url='login')
+@authorized_users(allowed_roles=['admin', 'customer'])
+# TODO: Add a func, to allow that customer only to update an order
 def update_order(request, pk):
     order = Order.objects.get(id=pk)
     if request.method == 'GET':
@@ -139,6 +151,7 @@ def update_order(request, pk):
         return redirect('home')
 
 @login_required(login_url='login')
+@authorized_users(allowed_roles=['admin'])
 def delete_order(request, pk):
     order = Order.objects.get(id=pk)
     if request.method == 'GET':
@@ -153,6 +166,7 @@ def delete_order(request, pk):
         return redirect('home')
 
 @login_required(login_url='login')
+@authorized_users(allowed_roles=['admin'])
 def update_customer(request, pk):
     customer = Customer.objects.get(id=pk)
     if request.method == 'GET':
@@ -166,6 +180,7 @@ def update_customer(request, pk):
         return redirect('home')
 
 @login_required(login_url='login')
+@authorized_users(allowed_roles=['admin'])
 def delete_customer(request, pk):
     customer = Customer.objects.get(id=pk)
     if request.method == 'GET':
