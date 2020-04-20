@@ -1,13 +1,20 @@
 from django.db import models
 from django.contrib.auth.models import User
+import os
 
 # Create your models here.
+def upload_photo_and_rename(instance, filename):
+    upload_to = 'users/'+instance.name
+    ext = filename.split('.')[-1]
+    filename = 'profile_pic'+'.'+str(ext)
+    return os.path.join(upload_to, filename)
 
 class Customer(models.Model):
     user = models.OneToOneField(User, null=True, on_delete=models.CASCADE)
     name = models.CharField(max_length=50, null=False)
     phone = models.BigIntegerField(null=False)
     email = models.EmailField(null=True)
+    profile_pic = models.ImageField(default='default_profile_pic.png', null=True, blank=True, upload_to=upload_photo_and_rename)
     date_created = models.DateTimeField(auto_now_add=True)
     
     def __str__(self):

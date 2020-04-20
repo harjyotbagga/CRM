@@ -13,6 +13,7 @@ class CustomerForm(ModelForm):
     class Meta:
         model = Customer
         fields = '__all__'
+        exclude = ['user']
 
 class CreateUserForm(UserCreationForm):
     username = forms.CharField(widget=forms.TextInput(attrs={'placeholder': 'Username'}))

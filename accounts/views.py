@@ -89,6 +89,24 @@ def home(request):
     return render(request, 'dashboard.html', context=context)
 
 @login_required(login_url='login')
+@authorized_users(allowed_roles = ['customer'])
+def accountSettings(request):
+    customer = request.user.customer
+    form = CustomerForm(instance=customer)
+    if request.method == 'GET':
+        context = {'form':form}
+        return render(request, 'account_settings.html', context)
+    elif request.method == 'POST':
+        form = CustomerForm(request.POST, request.FILES,instance=customer)
+        if form.is_valid():
+            form.save()
+            print(form.cleaned_data)
+        else:
+            print(form.errors)
+        context = {'form':form}
+        return render(request, 'account_settings.html', context)
+
+@login_required(login_url='login')
 @authorized_users(allowed_roles = ['admin'])
 def products(request):
     product_count = Product.objects.count()

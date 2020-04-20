@@ -17,14 +17,14 @@ def authorized_users(allowed_roles = []):
             # Check if the user belongs to any group or not
             if request.user.groups.exists():
                 user_groups = request.user.groups.all()
-                print(user_groups)
+                # print(user_groups)
                 user_groups_name = []
                 for user_group in user_groups:
                     user_groups_name.append(user_group.name)
                     if user_group.name in allowed_roles:
                         access = True
-                    print(user_groups_name)
-                    print(allowed_roles)
+                    # print(user_groups_name)
+                    # print(allowed_roles)
             if access == True:
                 return view_func(request, *args, **kwargs)
             else:
