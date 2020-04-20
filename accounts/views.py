@@ -45,14 +45,26 @@ def register(request):
 
             group = Group.objects.get(name='customer')
             user.groups.add(group)
-            
-            messages.success(request, 'User account was created for '+ user)
+            Customer.objects.create(user=user)
+
+            messages.success(request, 'User account was created for '+ str(username))
             return redirect('login')
         else:
             return render(request, 'register.html', context={'form': form})
 
+@login_required(login_url='login')
+@authorized_users(allowed_roles = ['customer'])
 def userPage(request):
-    context={}
+    orders = request.user.customer.customer_orders.all()
+    order_count = request.user.customer.customer_orders.count()
+    delivered_order_count = request.user.customer.customer_orders.filter(status='Delivered').count()
+    pending_order_count = request.user.customer.customer_orders.filter(status='Pending').count()
+    context = {
+        'orders': orders,
+        'order_count': order_count,
+        'delivered_order_count': delivered_order_count,
+        'pending_order_count': pending_order_count
+    }
     return render(request, 'user.html', context=context)
 
 
